@@ -1,0 +1,125 @@
+Entidades, Relacionamentos e Funcionalidades
+
+
+Entidades:
+
+    ONG:
+
+    Caso(Incident):
+
+
+Funcionalidades:
+
+    Logar ONG:
+
+    Lougout ONG:
+
+    Cadastrar ONG:
+
+    Cadastrar Caso:
+
+    Deletar Caso:
+
+    Listar Caso Especifico de uma ONG:
+
+    Listar Todos os Casos(Mobile):
+
+    Entrar em contato com a ONG(Mobile):
+
+
+Para a persitencia e histórico utilizaremos as migrattions do KNex
+    http://knexjs.org/#Installation-migrations
+
+    ir para Migration CLI
+
+        No nextfile.js adiconar a propriedade migrations: no ambiente de desenvolvimento 
+
+        // ambiente de desenvolvimento
+        development: {
+            client: 'sqlite3',
+            connection: {
+            filename: './src/database/db.sqlite3'
+            },
+            migrations: {
+            directory: './src/database/migrations'
+            }
+        },
+
+    para criar a migration para ongs executar o comando abaixo:
+        npx knex migrate:make create_ongs
+
+            se apresentar o erro: sqlite does not support inserting default values. Set the `useNullAsDefault` flag to hide this warning. (see docs http://knexjs.org/#Builder-insert).
+
+                No nextfile.js adiconar a propriedade useNullAsDefault: true, no ambiente de desenvolvimento 
+            
+                // ambiente de desenvolvimento
+                development: {
+                    client: 'sqlite3',
+                    connection: {
+                    filename: './src/database/db.sqlite3'
+                    },
+                    migrations: {
+                    directory: './src/database/migrations'
+                    },
+                    useNullAsDefault: true,
+                },
+
+    PARA CRIAR A TABELA
+      vá para a migration criada 
+        //table ongs
+            // o metodo up sempre é reponsavel pela criação da tabela
+
+                exports.up = function(knex) {
+                return knex.schema.createTable('ongs', function(table){
+                    table.String('id').primary();
+                    table.String('nome').notNullable();
+                    table.String('email').notNullable();
+                    table.String('whatsapp').notNullable();
+                    table.String('cidade').notNullable();
+                    table.String('estado',2).notNullable();
+
+                });
+                };
+
+                // utilizado para dropar a table
+                exports.down = function(knex) {
+                    return knex.schema.dropTable('ong');
+                
+                };
+
+        // table Incidents
+
+            exports.up = function(knex) {
+                knex.schema.createTable('incidents', function(table){
+                    
+                    // auto increment id
+                    table.increments();
+
+                    table.String('title').notNullable();
+                    table.String('description').notNullable();
+                    table.decimal('value').notNullable();
+
+                    table.String('ong_id').notNullable();
+                    // criar foreign key
+                    table.foreign('ong_id').references('id').inTable('ong');
+
+            
+                });
+            
+            };
+
+            exports.down = function(knex) {
+                return knex.schema.dropTable('incidents');
+            
+            };
+
+
+
+    PARA RODAR A CRIAÇÃO DA TABELA, usar o comando 
+        npx knex migrate:latest
+
+    PARA voltar a ultima migration, usar o comando 
+        npx knex migrate:rollback
+
+    PARA visualizar as migrations pendentes, usar o comando 
+        npx knex migrate:status
